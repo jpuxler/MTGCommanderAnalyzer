@@ -11,12 +11,13 @@ public class StringToMapConverter {
 
     public static Map<String, String> getMapOutOfString(String value){
         Map<String, String> result = new HashMap<>();
-        StringTokenizer tokenizer = new StringTokenizer(value, ",");
+        value = value.replace("],", "]#");
+        value = value.substring(1, value.length() - 1);
+        StringTokenizer tokenizer = new StringTokenizer(value, "#");
 
         while (tokenizer.hasMoreTokens()){
             String token = tokenizer.nextToken();
             String[] keyValue = token.split("=");
-            System.out.println(keyValue[0] + ": " + keyValue[1]);
             result.put(keyValue[0], keyValue[1]);
         }
         return result;
