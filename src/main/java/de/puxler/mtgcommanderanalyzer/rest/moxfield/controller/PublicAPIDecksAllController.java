@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Map;
+import java.util.Set;
+
 @RestController
 @RequestMapping("/api/v1/moxfield/decks/info")
 public class PublicAPIDecksAllController {
@@ -30,7 +33,11 @@ public class PublicAPIDecksAllController {
         String forObject = new RestTemplate().getForObject(
                 RessourceLoader.getValueFromKey("moxfield")+ deckId, String.class
         );
-        this.publicAPIDecksAllService.createCsvOutOfDeckJson(forObject);
+        Set<String> uniqueTags = this.publicAPIDecksAllService.getUniqueTags(forObject);
+        Map<String, Integer> mapOutOfTags = this.publicAPIDecksAllService.createMapOutOfTags(uniqueTags);
+        Map<String, Integer> countingTags = this.publicAPIDecksAllService.analyzeDeckWithMatchingTags(forObject, mapOutOfTags);
+        System.out.println(countingTags);
+        //this.publicAPIDecksAllService.createCsvOutOfDeckJson(forObject);
     }
 
 
