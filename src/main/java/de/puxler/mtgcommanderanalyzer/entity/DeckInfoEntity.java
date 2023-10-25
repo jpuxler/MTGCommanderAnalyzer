@@ -2,8 +2,12 @@ package de.puxler.mtgcommanderanalyzer.entity;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
-@Getter @Setter
+import java.util.ArrayList;
+import java.util.Set;
+
+@Getter @Setter @ToString
 public class DeckInfoEntity {
     private String name;
     private String description;
@@ -13,6 +17,7 @@ public class DeckInfoEntity {
     private int drawSpells;
     private int winConSpells;
     private int protectionSpells;
+    private Set<String> tags;
 
     public void addDrawSpell(){
         drawSpells++;

@@ -2,7 +2,9 @@ package de.puxler.mtgcommanderanalyzer.rest.moxfield.service;
 
 import com.google.gson.Gson;
 import de.puxler.mtgcommanderanalyzer.entity.DeckInfoEntity;
+import de.puxler.mtgcommanderanalyzer.util.RessourceLoader;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,92 +15,63 @@ import static de.puxler.mtgcommanderanalyzer.util.StringToMapConverter.getMapOut
 
 @Service
 public class PublicAPIDecksAllService {
+    public static final String AUTHOR_TAGS = "authorTags";
+    public static final String NAME = "name";
+    public static final String DESCRIPTION = "description";
+    public static final String FORMAT = "format";
+    public static final String PUBLIC_URL = "publicUrl";
+    private final DeckInfoEntity deckInfoEntity;
+    private Map<String, String> mtgDeckMetadataMap;
 
+    public PublicAPIDecksAllService(){
+        deckInfoEntity = new DeckInfoEntity();
+    }
+    public void evaluateMTGCommanderDeck(String deckId) {
+        moxfieldCallWithDeckIdForMetadata(deckId);
+        persistDeckInformation();
+        evaluateTagsFromDeck();
+    }
 
-
-
-    public void createCsvOutOfDeckJson(String forObject){
+    private void moxfieldCallWithDeckIdForMetadata(String deckId) {
         Gson gson = new Gson();
+        mtgDeckMetadataMap = gson.fromJson(new RestTemplate().getForObject(
+                RessourceLoader.getValueFromKey("moxfield")+ deckId, String.class
+        ), Map.class);
+    }
 
+    private void persistDeckInformation() {
+        deckInfoEntity.setName(getInformation(NAME));
+        deckInfoEntity.setDescription(getInformation(DESCRIPTION));
+        deckInfoEntity.setFormat(getInformation(FORMAT));
+        deckInfoEntity.setPublicUrl(getInformation(PUBLIC_URL));
+        deckInfoEntity.setTags(getUniqueTags());
+    }
 
-        var map = gson.fromJson(forObject, Map.class);
-        Object authorTags = map.get("authorTags");
+    private Set<String> getUniqueTags() {
+        return new HashSet<>(createMapOutOfTagsFromDeck().values());
+    }
 
-        DeckInfoEntity deckInfoEntity = new DeckInfoEntity();
-        deckInfoEntity.setName(map.get("name").toString());
-        deckInfoEntity.setDescription(map.get("description").toString());
-        deckInfoEntity.setFormat(map.get("format").toString());
-        deckInfoEntity.setPublicUrl(map.get("publicUrl").toString());
+    private Map<String, String> createMapOutOfTagsFromDeck() {
+        Object s = mtgDeckMetadataMap.get(AUTHOR_TAGS);
+        return getMapOutOfString(s.toString());
+    }
 
-        Map<String, String> mapOutOfString = getMapOutOfString(authorTags.toString());
+    private String getInformation(String key){
+        return mtgDeckMetadataMap.get(key);
+    }
 
-        mapOutOfString.forEach(
-                (String key, String value) ->
+    private void evaluateTagsFromDeck() {
+        Map<String, String> mapOutOfTagsFromDeck = createMapOutOfTagsFromDeck();
+
+        mapOutOfTagsFromDeck.forEach(
+                (String k, String v) ->
                 {
-                    if(value.contains("Draw")){
-                        deckInfoEntity.addDrawSpell();
-                    }
-                    if(value.contains("WinCon")){
-                        deckInfoEntity.addWinConSpell();
-                    }
-                    if(value.contains("Protection")){
-                        deckInfoEntity.addProtectionSpell();
-                    }
+
                 }
         );
-
-
-        System.out.println("Draw Spell: " + deckInfoEntity.getDrawSpells());
-        System.out.println("WinCon Spell: " + deckInfoEntity.getWinConSpells());
-        System.out.println("Protection Spell: " + deckInfoEntity.getProtectionSpells());
-
-
-
     }
 
-    public Set<String> getUniqueTags(String forObject) {
-        Gson gson = new Gson();
-        var map = gson.fromJson(forObject, Map.class);
-        Object authorTags = map.get("authorTags");
-        Map<String, String> mapOutOfString = getMapOutOfString(authorTags.toString());
-        return new HashSet<>(mapOutOfString.values());
-    }
 
-    public Map<String, Integer> createMapOutOfTags(Set<String> uniqueTags){
-        Map<String, Integer> deckAnalytics = new HashMap<>();
-        uniqueTags.forEach(tag ->
-                        deckAnalytics.put(tag, 0)
-                );
-        return deckAnalytics;
 
-    }
-
-    public Map<String, Integer> analyzeDeckWithMatchingTags(String forObject, Map<String, Integer> mapOutOfTags) {
-        Gson gson = new Gson();
-        var map = gson.fromJson(forObject, Map.class);
-        Object authorTags = map.get("authorTags");
-
-        Map<String, String> mapOutOfString = getMapOutOfString(authorTags.toString());
-
-        mapOutOfString.forEach(
-                (String cardName, String tag) ->
-                {
-                    mapOutOfTags.forEach(
-                            (String key, Integer value) ->
-                            {
-                                System.out.println(tag + " : " + key);
-                                if(tag.contains(key)){
-                                    mapOutOfTags.put(key, ++value);
-                                }
-                            }
-                    );
-                }
-        );
-        return mapOutOfTags;
-    }
-
-    private int increaseValueByOne(int value){
-        return value++;
-    }
 }
 

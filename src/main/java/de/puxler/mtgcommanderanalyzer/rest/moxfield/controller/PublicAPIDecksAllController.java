@@ -30,14 +30,7 @@ public class PublicAPIDecksAllController {
     @GetMapping("/deckId/{deckId}")
     public void getDeckInfoWithId(@PathVariable String deckId) {
         LOGGER.info("Call getDeckInfoWithId with ID: {}", deckId);
-        String forObject = new RestTemplate().getForObject(
-                RessourceLoader.getValueFromKey("moxfield")+ deckId, String.class
-        );
-        Set<String> uniqueTags = this.publicAPIDecksAllService.getUniqueTags(forObject);
-        Map<String, Integer> mapOutOfTags = this.publicAPIDecksAllService.createMapOutOfTags(uniqueTags);
-        Map<String, Integer> countingTags = this.publicAPIDecksAllService.analyzeDeckWithMatchingTags(forObject, mapOutOfTags);
-        System.out.println(countingTags);
-        //this.publicAPIDecksAllService.createCsvOutOfDeckJson(forObject);
+        this.publicAPIDecksAllService.evaluateMTGCommanderDeck(deckId);
     }
 
 
