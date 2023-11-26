@@ -6,10 +6,7 @@ import de.puxler.mtgcommanderanalyzer.util.RessourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static de.puxler.mtgcommanderanalyzer.util.StringToMapConverter.getMapOutOfString;
 
@@ -30,6 +27,7 @@ public class PublicAPIDecksAllService {
         moxfieldCallWithDeckIdForMetadata(deckId);
         persistDeckInformation();
         evaluateTagsFromDeck();
+        printDeckInfo();
     }
 
     private void moxfieldCallWithDeckIdForMetadata(String deckId) {
@@ -66,10 +64,21 @@ public class PublicAPIDecksAllService {
         mapOutOfTagsFromDeck.forEach(
                 (String k, String v) ->
                 {
-
+                   splitStringIntoTagList(v);
                 }
         );
     }
+
+    private List<String> splitStringIntoTagList(String v) {
+        List<String> o = null;
+        return o;
+    }
+
+    private void printDeckInfo() {
+        System.out.println(deckInfoEntity.toString());
+    }
+
+
 
 
 
