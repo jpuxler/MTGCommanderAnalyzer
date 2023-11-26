@@ -60,18 +60,25 @@ public class PublicAPIDecksAllService {
 
     private void evaluateTagsFromDeck() {
         Map<String, String> mapOutOfTagsFromDeck = createMapOutOfTagsFromDeck();
-
         mapOutOfTagsFromDeck.forEach(
                 (String k, String v) ->
-                {
-                   splitStringIntoTagList(v);
-                }
+                    sortTagsToEntity(splitStringIntoTagList(v))
         );
     }
 
+    private void sortTagsToEntity(List<String> strings) {
+        strings.forEach(
+                this::tagToEntity
+        );
+    }
+
+    private void tagToEntity(String tag) {
+        deckInfoEntity.getAmmountOfTags().merge(tag, 1, Integer::sum);
+    }
+
     private List<String> splitStringIntoTagList(String v) {
-        List<String> o = null;
-        return o;
+        String substring = v.substring(1, v.length() - 1);
+        return Arrays.stream(substring.split(",")).toList();
     }
 
     private void printDeckInfo() {

@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Set;
 
 @Getter @Setter @ToString
@@ -14,22 +14,8 @@ public class DeckInfoEntity {
     private String format;
     private String publicUrl;
 
-    private int drawSpells;
-    private int winConSpells;
-    private int protectionSpells;
     private Set<String> tags;
-
-    public void addDrawSpell(){
-        drawSpells++;
-    }
-
-    public void addWinConSpell(){
-        winConSpells++;
-    }
-
-    public void addProtectionSpell(){
-        protectionSpells++;
-    }
+    private HashMap<String, Integer> ammountOfTags = new HashMap<>();
 
     @Override
     public String toString(){
@@ -38,8 +24,6 @@ public class DeckInfoEntity {
                 "\nDescription: " + description +
                 "\nFormat: " + format +
                 "\nPublicUrl: " + publicUrl +
-                "\nDraw Spells: " + drawSpells +
-                "\nWinCon Spells: " + winConSpells +
-                "\nProtection Spells: " + protectionSpells;
+                "\nAmmount of Tags: " + ammountOfTags;
     }
 }
